@@ -1,0 +1,194 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Planner</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Study Planner</h1>
+    <form id="taskForm">
+      <input type="text" id="taskInput" placeholder="Enter your task" required>
+      <input type="date" id="deadlineInput" required>
+      <button type="submit">Add Task</button>
+    </form>
+    <ul id="taskList"></ul>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html><style>body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f9;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+button {
+  padding: 10px;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #218838;
+}
+
+#taskList {
+  margin-top: 20px;
+  list-style-type: none;
+  padding: 0;
+}
+
+.task {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f9f9f9;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.task.completed {
+  text-decoration: line-through;
+  background: #d4edda;
+}
+
+.task button {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.task button:hover {
+  background: #c82333;
+}</style><script>const taskForm = document.getElementById('taskForm');
+const taskInput = document.getElementById('taskInput');
+const deadlineInput = document.getElementById('deadlineInput');
+const taskList = document.getElementById('taskList');
+
+// Load tasks from localStorage
+document.addEventListener('DOMContentLoaded', loadTasks);
+
+// Function to add a task
+taskForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const taskText = taskInput.value.trim();
+  const deadline = deadlineInput.value;
+
+  if (!taskText || !deadline) return;
+
+  const task = {
+    text: taskText,
+    deadline: deadline,
+    completed: false,
+  };
+
+  saveTask(task);
+  displayTask(task);
+
+  taskForm.reset();
+});
+
+// Function to save a task in localStorage
+function saveTask(task) {
+  const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  tasks.push(task);
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+}
+
+// Function to load tasks from localStorage
+function loadTasks() {
+  const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  tasks.forEach(displayTask);
+}
+
+// Function to display a task on the page
+function displayTask(task) {
+  const taskItem = document.createElement('li');
+  taskItem.className = 'task';
+
+  if (task.completed) {
+    taskItem.classList.add('completed');
+  }
+
+  taskItem.innerHTML = `
+    <span>${task.text} - <small>${task.deadline}</small></span>
+    <button onclick="deleteTask(this)">Delete</button>
+  `;
+
+  taskItem.addEventListener('click', () => {
+    taskItem.classList.toggle('completed');
+    toggleTaskCompletion(task.text);
+  });
+
+  taskList.appendChild(taskItem);
+}
+
+// Function to toggle task completion in localStorage
+function toggleTaskCompletion(taskText) {
+  const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  const task = tasks.find((t) => t.text === taskText);
+  if (task) {
+    task.completed = !task.completed;
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+  }
+}
+
+// Function to delete a task
+function deleteTask(button) {
+  const taskItem = button.parentElement;
+  const taskText = taskItem.querySelector('span').innerText.split(' - ')[0];
+  taskItem.remove();
+  removeTask(taskText);
+}
+
+// Function to remove a task from localStorage
+function removeTask(taskText) {
+  const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+  const updatedTasks = tasks.filter((t) => t.text !== taskText);
+  localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+}</script>
